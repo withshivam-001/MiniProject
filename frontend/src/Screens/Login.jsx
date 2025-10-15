@@ -7,6 +7,7 @@ import { setUserToken } from "../redux/actions";
 import { useDispatch } from "react-redux";
 import CustomButton from "../components/CustomButton";
 import axiosWrapper from "../utils/AxiosWrapper";
+
 const USER_TYPES = {
   STUDENT: "Student",
   FACULTY: "Faculty",
@@ -15,10 +16,10 @@ const USER_TYPES = {
 
 const LoginForm = ({ selected, onSubmit, formData, setFormData }) => (
   <form
-    className="w-full p-8 bg-white rounded-2xl shadow-xl border border-gray-200"
+    className="w-full p-6 sm:p-8 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200"
     onSubmit={onSubmit}
   >
-    <div className="mb-6">
+    <div className="mb-5 sm:mb-6">
       <label
         className="block text-gray-800 text-sm font-medium mb-2"
         htmlFor="email"
@@ -34,7 +35,7 @@ const LoginForm = ({ selected, onSubmit, formData, setFormData }) => (
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
     </div>
-    <div className="mb-6">
+    <div className="mb-5 sm:mb-6">
       <label
         className="block text-gray-800 text-sm font-medium mb-2"
         htmlFor="password"
@@ -69,12 +70,12 @@ const LoginForm = ({ selected, onSubmit, formData, setFormData }) => (
 );
 
 const UserTypeSelector = ({ selected, onSelect }) => (
-  <div className="flex justify-center gap-4 mb-8">
+  <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8">
     {Object.values(USER_TYPES).map((type) => (
       <button
         key={type}
         onClick={() => onSelect(type)}
-        className={`px-5 py-2 text-sm font-medium rounded-full transition duration-200 ${
+        className={`px-4 sm:px-5 py-2 text-sm font-medium rounded-full transition duration-200 ${
           selected === type
             ? "bg-blue-600 text-white shadow"
             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
@@ -149,9 +150,18 @@ const Login = () => {
   }, [type]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-gray-100 via-white to-gray-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-2xl lg:w-1/2 px-6 py-12">
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 sm:px-6"
+      style={{
+        backgroundImage:
+          'url("https://e0.pxfuel.com/wallpapers/529/857/desktop-wallpaper-college-students-1920-x-1080.jpg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="w-full max-w-md sm:max-w-lg lg:max-w-2xl bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-10 md:p-12">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-6">
           {selected} Login
         </h1>
         <UserTypeSelector selected={selected} onSelect={handleUserTypeSelect} />

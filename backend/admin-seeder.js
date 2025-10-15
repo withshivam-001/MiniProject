@@ -14,7 +14,7 @@ const seedData = async () => {
 
     const adminDetail = {
       employeeId: employeeId,
-      firstName: "Sundar",
+      firstName: "Shivam",
       middleName: "R",
       lastName: "Pichai",
       email: "admin@gmail.com",

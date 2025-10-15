@@ -63,14 +63,12 @@ const Home = () => {
   const getMenuItemClass = (menuId) => {
     const isSelected = selectedMenu.toLowerCase() === menuId.toLowerCase();
     return `
-      text-center px-6 py-3 cursor-pointer
-      font-medium text-sm w-full
-      rounded-md
-      transition-all duration-300 ease-in-out
+      flex-1 text-center px-4 sm:px-6 py-2.5 sm:py-3 cursor-pointer
+      font-medium text-sm sm:text-base rounded-full transition-all duration-300 ease-in-out
       ${
         isSelected
-          ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg transform -translate-y-1"
-          : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+          ? "bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-500 text-white shadow-lg transform scale-105"
+          : "bg-white/60 text-blue-800 hover:bg-blue-50 hover:shadow"
       }
     `;
   };
@@ -78,7 +76,9 @@ const Home = () => {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <div className="flex justify-center items-center h-64">Loading...</div>
+        <div className="flex justify-center items-center h-64 text-gray-600 text-lg">
+          Loading...
+        </div>
       );
     }
 
@@ -108,21 +108,56 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <div className="max-w-7xl mx-auto">
-        <ul className="flex justify-evenly items-center gap-10 w-full mx-auto my-8">
-          {MENU_ITEMS.map((item) => (
-            <li
-              key={item.id}
-              className={getMenuItemClass(item.id)}
-              onClick={() => handleMenuClick(item.id)}
-            >
-              {item.label}
-            </li>
-          ))}
-        </ul>
+      {/* Background Section */}
+      <div
+        className="min-h-screen bg-cover bg-center bg-no-repeat relative"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1400&q=80')",
+        }}
+      >
+        {/* Overlay for better readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-blue-700/60 to-blue-500/50 backdrop-blur-sm"></div>
 
-        {renderContent()}
+        {/* Content Wrapper */}
+        <div className="relative z-10">
+          {/* Menu Bar */}
+          <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-lg border-b border-blue-100 shadow-md">
+            <ul className="flex flex-wrap justify-center sm:justify-evenly items-center gap-3 sm:gap-6 w-full max-w-6xl mx-auto py-4 px-3">
+              {MENU_ITEMS.map((item) => (
+                <li
+                  key={item.id}
+                  className={getMenuItemClass(item.id)}
+                  onClick={() => handleMenuClick(item.id)}
+                >
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Hero Section for Home */}
+          {selectedMenu === "home" && (
+            <div className="text-center text-white mt-12 sm:mt-16 px-6">
+              <h1 className="text-3xl sm:text-5xl font-bold drop-shadow-lg">
+                Welcome to Your College ERP Dashboard
+              </h1>
+              <p className="mt-4 text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto">
+                Access your timetable, materials, notices, exams, and marks —
+                all in one place.
+              </p>
+            </div>
+          )}
+
+          {/* Page Content */}
+          <div className="max-w-6xl mx-auto mt-10 sm:mt-14 px-4 sm:px-8 pb-16">
+            <div className="bg-white/85 backdrop-blur-md rounded-2xl shadow-2xl p-5 sm:p-8 border border-blue-100 transition-all duration-300">
+              {renderContent()}
+            </div>
+          </div>
+        </div>
       </div>
+
       <Toaster position="bottom-center" />
     </>
   );
