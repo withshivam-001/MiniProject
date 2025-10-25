@@ -13,6 +13,7 @@ import axiosWrapper from "../../utils/AxiosWrapper";
 import Profile from "./Profile";
 import Exam from "../Exam";
 import { useNavigate, useLocation } from "react-router-dom";
+import { User } from "lucide-react";
 
 const MENU_ITEMS = [
   { id: "home", label: "Home", component: Profile },
@@ -34,14 +35,13 @@ const Home = () => {
   const dispatch = useDispatch();
   const userToken = localStorage.getItem("userToken");
 
+  // 🔹 Fetch Admin Details
   const fetchUserDetails = async () => {
     setIsLoading(true);
+    const toastId = toast.loading("Loading admin details...");
     try {
-      toast.loading("Loading user details...");
       const response = await axiosWrapper.get(`/admin/my-details`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: { Authorization: `Bearer ${userToken}` },
       });
       if (response.data.success) {
         setProfileData(response.data.data);
@@ -51,47 +51,53 @@ const Home = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error(
-        error.response?.data?.message || "Error fetching user details"
-      );
+      toast.error(error.response?.data?.message || "Error fetching admin details");
     } finally {
       setIsLoading(false);
-      toast.dismiss();
+      toast.dismiss(toastId);
     }
   };
 
   useEffect(() => {
     fetchUserDetails();
-  }, [dispatch, userToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  // 🔹 Handle URL-based Menu Sync
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const pathMenuId = urlParams.get("page") || "home";
     const validMenu = MENU_ITEMS.find((item) => item.id === pathMenuId);
     setSelectedMenu(validMenu ? validMenu.id : "home");
-  }, [location.pathname]);
+  }, [location]);
 
+  // 🔹 Menu Highlight Classes
   const getMenuItemClass = (menuId) => {
     const isSelected = selectedMenu === menuId;
     return `
-      text-center px-6 py-3 cursor-pointer
-      font-medium text-sm w-full
-      rounded-md
-      transition-all duration-300 ease-in-out
+      w-full text-left px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-all
       ${
         isSelected
-          ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg transform -translate-y-1"
-          : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+          ? "bg-gradient-to-r from-indigo-500 to-blue-500 text-white shadow"
+          : "text-gray-700 hover:bg-blue-50"
       }
     `;
   };
 
+  // 🔹 Menu Navigation
+  const handleMenuClick = (menuId) => {
+    setSelectedMenu(menuId);
+    navigate(`/admin?page=${menuId}`);
+  };
+
+  // 🔹 Page Content
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading)
       return (
-        <div className="flex justify-center items-center h-64">Loading...</div>
+        <div className="flex justify-center items-center h-64 text-gray-600 text-lg">
+          Loading...
+        </div>
       );
-    }
 
     const MenuItem = MENU_ITEMS.find(
       (item) => item.id === selectedMenu
@@ -104,29 +110,80 @@ const Home = () => {
     return MenuItem && <MenuItem />;
   };
 
-  const handleMenuClick = (menuId) => {
-    setSelectedMenu(menuId);
-    navigate(`/admin?page=${menuId}`);
-  };
-
   return (
     <>
+      {/* Navbar */}
       <Navbar />
-      <div className="max-w-7xl mx-auto">
-        <ul className="flex justify-evenly items-center gap-10 w-full mx-auto my-8">
-          {MENU_ITEMS.map((item) => (
-            <li
-              key={item.id}
-              className={getMenuItemClass(item.id)}
-              onClick={() => handleMenuClick(item.id)}
-            >
-              {item.label}
-            </li>
-          ))}
-        </ul>
 
-        {renderContent()}
+      <div className="flex min-h-screen bg-[#f8faff]">
+        {/* Sidebar */}
+        <aside className="fixed left-0 top-16 bottom-0 w-64 bg-white shadow-lg border-r border-indigo-100 flex flex-col justify-between z-20">
+          {/* Upper part */}
+          <div className="flex flex-col items-center py-6 space-y-6">
+            {/* Profile */}
+            <div
+              className="flex flex-col items-center text-center cursor-pointer"
+              onClick={() => handleMenuClick("home")}
+            >
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow">
+                <User className="text-white w-7 h-7" />
+              </div>
+              <p className="mt-2 text-sm font-semibold text-gray-800">
+                {profileData?.name || "Admin"}
+              </p>
+              <p className="text-xs text-gray-500">
+                {profileData?.email || "admin@email.com"}
+              </p>
+            </div>
+
+            {/* Menu */}
+            <ul className="w-full px-4 space-y-1">
+              {MENU_ITEMS.map((item) => (
+                <li
+                  key={item.id}
+                  className={getMenuItemClass(item.id)}
+                  onClick={() => handleMenuClick(item.id)}
+                >
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Bottom Logo */}
+          <div className="flex flex-col items-center py-4 border-t border-indigo-50">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg shadow-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </div>
+              <span className="text-indigo-600 font-semibold text-lg">
+                StudentPulse
+              </span>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 ml-64 mt-0 p-6 transition-all duration-300">
+          <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md border border-indigo-100 p-6 sm:p-8">
+            {renderContent()}
+          </div>
+        </main>
       </div>
+
       <Toaster position="bottom-center" />
     </>
   );

@@ -11,6 +11,7 @@ import Profile from "./Profile";
 import Exam from "../Exam";
 import ViewMarks from "./ViewMarks";
 import { useNavigate, useLocation } from "react-router-dom";
+import { User } from "lucide-react";
 
 const MENU_ITEMS = [
   { id: "home", label: "Home", component: null },
@@ -30,14 +31,13 @@ const Home = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // 🔹 Fetch User Details
   const fetchUserDetails = async () => {
     setIsLoading(true);
     try {
       toast.loading("Loading user details...");
       const response = await axiosWrapper.get(`/student/my-details`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
+        headers: { Authorization: `Bearer ${userToken}` },
       });
       if (response.data.success) {
         setProfileData(response.data.data);
@@ -60,19 +60,20 @@ const Home = () => {
     fetchUserDetails();
   }, [dispatch, userToken]);
 
+  // 🔹 Menu Highlight Style
   const getMenuItemClass = (menuId) => {
-    const isSelected = selectedMenu.toLowerCase() === menuId.toLowerCase();
+    const isSelected = selectedMenu === menuId;
     return `
-      flex-1 text-center px-4 sm:px-6 py-2.5 sm:py-3 cursor-pointer
-      font-medium text-sm sm:text-base rounded-full transition-all duration-300 ease-in-out
+      w-full text-left px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-all
       ${
         isSelected
-          ? "bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-500 text-white shadow-lg transform scale-105"
-          : "bg-white/60 text-blue-800 hover:bg-blue-50 hover:shadow"
+          ? "bg-gradient-to-r from-indigo-500 to-blue-500 text-white shadow"
+          : "text-gray-700 hover:bg-blue-50"
       }
     `;
   };
 
+  // 🔹 Render Content
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -87,7 +88,7 @@ const Home = () => {
     }
 
     const MenuItem = MENU_ITEMS.find(
-      (item) => item.label.toLowerCase() === selectedMenu.toLowerCase()
+      (item) => item.id === selectedMenu
     )?.component;
 
     return MenuItem && <MenuItem />;
@@ -95,10 +96,10 @@ const Home = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const pathMenuId = urlParams.get("page") || "home";
-    const validMenu = MENU_ITEMS.find((item) => item.id === pathMenuId);
+    const page = urlParams.get("page") || "home";
+    const validMenu = MENU_ITEMS.find((item) => item.id === page);
     setSelectedMenu(validMenu ? validMenu.id : "home");
-  }, [location.pathname]);
+  }, [location]);
 
   const handleMenuClick = (menuId) => {
     setSelectedMenu(menuId);
@@ -107,55 +108,62 @@ const Home = () => {
 
   return (
     <>
+      {/* Navbar */}
       <Navbar />
-      {/* Background Section */}
-      <div
-        className="min-h-screen bg-cover bg-center bg-no-repeat relative"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1400&q=80')",
-        }}
-      >
-        {/* Overlay for better readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-blue-700/60 to-blue-500/50 backdrop-blur-sm"></div>
 
-        {/* Content Wrapper */}
-        <div className="relative z-10">
-          {/* Menu Bar */}
-          <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-lg border-b border-blue-100 shadow-md">
-            <ul className="flex flex-wrap justify-center sm:justify-evenly items-center gap-3 sm:gap-6 w-full max-w-6xl mx-auto py-4 px-3">
-              {MENU_ITEMS.map((item) => (
-                <li
-                  key={item.id}
-                  className={getMenuItemClass(item.id)}
-                  onClick={() => handleMenuClick(item.id)}
-                >
-                  {item.label}
-                </li>
-              ))}
-            </ul>
+      <div className="flex min-h-screen bg-[#f8faff]">
+        {/* Sidebar */}
+        <aside
+          className="fixed left-0 top-16 w-64 h-[calc(100vh-64px)] bg-white shadow-lg border-r border-indigo-100 z-20 flex flex-col items-center py-6 space-y-6"
+        >
+          {/* Profile Section */}
+          <div
+            className="flex flex-col items-center text-center cursor-pointer"
+            onClick={() => handleMenuClick("home")}
+          >
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow">
+              <User className="text-white w-7 h-7" />
+            </div>
+            <p className="mt-2 text-sm font-semibold text-gray-800">
+              {profileData?.name || "Student Name"}
+            </p>
+            <p className="text-xs text-gray-500">
+              {profileData?.email || "student@email.com"}
+            </p>
           </div>
 
-          {/* Hero Section for Home */}
+          {/* Menu List */}
+          <ul className="w-full px-4 space-y-1">
+            {MENU_ITEMS.map((item) => (
+              <li
+                key={item.id}
+                className={getMenuItemClass(item.id)}
+                onClick={() => handleMenuClick(item.id)}
+              >
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 ml-64 mt-16 p-8 transition-all duration-300">
           {selectedMenu === "home" && (
-            <div className="text-center text-white mt-12 sm:mt-16 px-6">
-              <h1 className="text-3xl sm:text-5xl font-bold drop-shadow-lg">
+            <div className="text-center text-gray-800 mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-indigo-600">
                 Welcome to Your College ERP Dashboard
               </h1>
-              <p className="mt-4 text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto">
-                Access your timetable, materials, notices, exams, and marks —
-                all in one place.
+              <p className="mt-3 text-base sm:text-lg text-gray-500 max-w-xl mx-auto">
+                Access your timetable, materials, notices, exams, and marks — all in one place.
               </p>
             </div>
           )}
 
-          {/* Page Content */}
-          <div className="max-w-6xl mx-auto mt-10 sm:mt-14 px-4 sm:px-8 pb-16">
-            <div className="bg-white/85 backdrop-blur-md rounded-2xl shadow-2xl p-5 sm:p-8 border border-blue-100 transition-all duration-300">
-              {renderContent()}
-            </div>
+          {/* Page Container */}
+          <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-md border border-indigo-100 p-6 sm:p-8">
+            {renderContent()}
           </div>
-        </div>
+        </main>
       </div>
 
       <Toaster position="bottom-center" />

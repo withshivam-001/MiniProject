@@ -15,7 +15,7 @@ const Navbar = () => {
 
   return (
     <div className="shadow-md px-6 py-4 mb-6">
-      <div className="max-w-7xl flex justify-between items-center mx-auto">
+      <div className="max-w-10xl flex justify-between items-center mx-auto">
         <p
           className="font-semibold text-2xl flex justify-center items-center cursor-pointer"
           onClick={() => navigate("/")}
@@ -23,7 +23,7 @@ const Navbar = () => {
           <span className="mr-2">
             <RxDashboard />
           </span>{" "}
-          {router.state && router.state.type} Dashboard
+          {router.state && router.state.type} StudentPulse
         </p>
         <CustomButton variant="danger" onClick={logouthandler}>
           Logout
